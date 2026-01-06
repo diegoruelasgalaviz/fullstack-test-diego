@@ -30,3 +30,7 @@ coverage
 
 # Misc
 *.tsbuildinfo
+
+# IA
+
+.claude
