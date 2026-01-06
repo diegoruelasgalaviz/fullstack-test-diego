@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a full stack technical assessment for candidates applying to Aura Research. The project is a CRM (Customer Relationship Management) application that demonstrates your ability to work with modern web technologies in both frontend and backend development.
+This repository contains a full stack technical assessment for candidates applying to Aura Research. The core of this assessment is a series of **business-critical challenges** that you must solve within a CRM (Customer Relationship Management) application. Your primary goal is to complete these challenges to demonstrate your technical abilities and problem-solving approach.
 
 ## Purpose
 
@@ -14,15 +14,17 @@ The purpose of this technical test is to evaluate your skills in:
 4. **Testing**: Writing and running tests for both frontend and backend
 5. **Database Design**: Working with relational databases and ORM tools
 
-## Project Requirements
+## The Challenge-Based Assessment
+
+**The challenges are the heart of this technical test.** Each challenge represents a real-world business need that must be addressed in the CRM application. Your primary task is to complete enough challenges to meet the minimum point requirement.
 
 As a candidate, you are expected to:
 
-1. **Understand the Existing Codebase**: Navigate and comprehend the architecture and patterns used
-2. **Implement New Features**: Add functionality to both frontend and backend components
-3. **Fix Bugs**: Identify and resolve any issues in the existing code
+1. **Complete Business-Critical Challenges**: Implement solutions for the challenges in the `/challenges` directory
+2. **Understand the Existing Codebase**: Navigate and comprehend the architecture and patterns used
+3. **Implement New Features**: Add functionality to both frontend and backend components
 4. **Write Tests**: Ensure proper test coverage for your implementations
-5. **Document Your Work**: Provide clear documentation of your changes and decisions
+5. **Document Your Work**: Provide clear documentation of your approach and decisions
 
 ## Challenge Point System
 
@@ -59,33 +61,36 @@ Detailed information about the point system can be found in the `POINT_SYSTEM.md
 
 ## Evaluation Criteria
 
-Your submission will be evaluated based on:
+Your submission will be evaluated primarily on **successful challenge completion** and the points earned. Additionally, we will assess:
 
-1. **Code Quality**: Clean, maintainable, and well-structured code
-2. **Architecture**: Proper separation of concerns and adherence to clean architecture principles
-3. **Testing**: Comprehensive test coverage and proper testing practices
-4. **Problem Solving**: Ability to implement solutions to the given requirements
-5. **Documentation**: Clear explanation of your approach and decisions
+1. **Challenge Implementation**: How effectively you solved the business problems presented in the challenges
+2. **Code Quality**: Clean, maintainable, and well-structured code that follows best practices
+3. **Architecture**: Proper separation of concerns and adherence to clean architecture principles
+4. **Testing**: Comprehensive test coverage for your implementations
+5. **Documentation**: Clear explanation of your approach, decisions, and trade-offs
 
 ## Getting Started
 
 1. Clone this repository
 2. Follow the setup instructions in the README.md
-3. Familiarize yourself with the codebase
-4. Complete the tasks outlined in the assignment document provided separately
+3. **Review the challenges in the `/challenges` directory** - understand their business value and point allocation
+4. Familiarize yourself with the codebase
+5. Plan your approach to earn the minimum required points (70) by selecting which challenges to implement
+6. Focus on completing the Critical and High priority challenges first
 
 ## Submission Guidelines
 
 1. Fork this repository to your own GitHub account
-2. Implement your changes in the forked repository
-3. Create a single Pull Request (PR) for all your changes
-4. Your PR should include detailed explanations of:
-   - What changes were made
-   - Why these changes were implemented
-   - How the implementation addresses the requirements
-   - Any design decisions or trade-offs considered
+2. Implement your selected challenges in the forked repository
+3. Create a single Pull Request (PR) for all your implementations
+4. Your PR description should include:
+   - **Which challenges you completed and their point values**
+   - **Total points earned**
+   - How you approached each challenge
+   - Key technical decisions and trade-offs made
+   - Any additional improvements beyond the basic requirements
 5. Provide access to your forked repository to the Aura Research team
-6. Include a summary document of your overall approach and key decisions
+6. Include a summary document that explains which business needs you addressed and how your implementations solve them
 
 ## Time Allocation
 
