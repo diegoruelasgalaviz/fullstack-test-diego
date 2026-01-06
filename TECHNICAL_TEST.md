@@ -36,6 +36,8 @@ This technical test uses a point-based evaluation system:
 - You must complete at least one High priority challenge (20 points)
 - The remaining points can be earned by completing any combination of challenges
 
+**Important Note:** You are NOT required to complete all challenges. Focus on reaching the minimum 70 points by implementing the challenges that best showcase your skills. Quality of implementation is more important than quantity of challenges completed.
+
 ### Challenge Priorities
 
 Importantly, challenge priorities (Critical, High, Medium, Low) reflect **business value** rather than technical difficulty. A Critical priority challenge addresses a core business need, while a Low priority challenge, though still valuable, may have less immediate impact on business operations.
@@ -69,28 +71,20 @@ Your submission will be evaluated primarily on **successful challenge completion
 4. **Testing**: Comprehensive test coverage for your implementations
 5. **Documentation**: Clear explanation of your approach, decisions, and trade-offs
 
-## Getting Started
+## Getting Started & Submission Process
 
-1. Clone this repository
-2. Follow the setup instructions in the README.md
-3. **Review the challenges in the `/challenges` directory** - understand their business value and point allocation
-4. Familiarize yourself with the codebase
-5. Plan your approach to earn the minimum required points (70) by selecting which challenges to implement
-6. Focus on completing the Critical and High priority challenges first
-
-## Submission Guidelines
-
-1. Fork this repository to your own GitHub account
-2. Implement your selected challenges in the forked repository
-3. Create a single Pull Request (PR) for all your implementations
-4. Your PR description should include:
-   - **Which challenges you completed and their point values**
-   - **Total points earned**
-   - How you approached each challenge
-   - Key technical decisions and trade-offs made
-   - Any additional improvements beyond the basic requirements
-5. Provide access to your forked repository to the Aura Research team
-6. Include a summary document that explains which business needs you addressed and how your implementations solve them
+1. Fork this repository to your GitHub account
+2. Set up the project following instructions in README.md
+3. Review the challenges in `/challenges` and their point values
+4. Complete enough challenges to earn at least 70 points, including:
+   - At least one Critical challenge (30 points)
+   - At least one High priority challenge (20 points)
+5. Create a single Pull Request with your implementations
+6. In your PR description, include:
+   - List of completed challenges with their point values
+   - Total points earned
+   - Brief explanation of your approach and key decisions
+7. Provide access to your repository to the Aura Research team
 
 ## Time Allocation
 
@@ -98,6 +92,6 @@ You are expected to spend approximately 4-6 hours on this test. We value quality
 
 ## Support
 
-If you have any questions or need clarification about the test, please reach out to the Aura Research team at [contact email].
+If you have any questions or need clarification about the test, please reach out to the Aura Research team at mpat@aura.
 
 Good luck, and we look forward to reviewing your submission!
