@@ -6,7 +6,11 @@
       "Bash(pnpm --filter frontend build:*)",
       "Bash(tree:*)",
       "Bash(pnpm exec tsc:*)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(pnpm --filter backend add:*)",
+      "Bash(pnpm --filter backend test:run:*)",
+      "Bash(pnpm --filter frontend add -D vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event)",
+      "Bash(pnpm --filter frontend test:run:*)"
     ]
   }
 }

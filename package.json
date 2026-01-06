@@ -6,6 +6,9 @@
     "dev": "pnpm run --parallel dev",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
+    "test:frontend": "pnpm --filter frontend test",
+    "test:backend": "pnpm --filter backend test",
+    "test": "pnpm run --parallel test",
     "build": "pnpm run --parallel build",
     "lint": "pnpm run --parallel lint"
   },

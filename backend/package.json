@@ -8,6 +8,9 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "typeorm": "tsx ./node_modules/typeorm/cli.js",
     "migration:generate": "pnpm typeorm migration:generate -d src/infrastructure/database/data-source.ts",
     "migration:run": "pnpm typeorm migration:run -d src/infrastructure/database/data-source.ts",
@@ -30,6 +33,7 @@
     "@types/node": "^22.9.0",
     "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.16"
   }
 }
