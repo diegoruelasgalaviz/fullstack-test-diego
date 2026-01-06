@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm'
 import type { User } from '../domain'
+import { OrganizationEntity } from '@modules/organization/infrastructure'
 
 @Entity('users')
 export class UserEntity {
@@ -14,6 +15,13 @@ export class UserEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   password: string | null
+
+  @Column({ type: 'uuid', nullable: true, name: 'organization_id' })
+  organizationId: string | null
+
+  @ManyToOne(() => OrganizationEntity, { nullable: true })
+  @JoinColumn({ name: 'organization_id' })
+  organization: OrganizationEntity | null
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date

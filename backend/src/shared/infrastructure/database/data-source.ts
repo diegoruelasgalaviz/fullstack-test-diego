@@ -1,6 +1,10 @@
 import 'reflect-metadata'
 import { DataSource } from 'typeorm'
 import { UserEntity } from '@modules/users/infrastructure'
+import { OrganizationEntity } from '@modules/organization/infrastructure'
+import { ContactEntity } from '@modules/contact/infrastructure'
+import { WorkflowEntity, StageEntity } from '@modules/workflow/infrastructure'
+import { DealEntity } from '@modules/deal/infrastructure'
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -11,7 +15,14 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME ?? 'fullstack_db',
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
-  entities: [UserEntity],
+  entities: [
+    OrganizationEntity,
+    UserEntity,
+    ContactEntity,
+    WorkflowEntity,
+    StageEntity,
+    DealEntity,
+  ],
   migrations: ['src/shared/infrastructure/database/migrations/*.ts'],
   subscribers: [],
 })

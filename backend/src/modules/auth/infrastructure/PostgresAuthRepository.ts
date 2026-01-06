@@ -14,12 +14,13 @@ export class PostgresAuthRepository implements AuthRepository {
   }
 
   async create(
-    data: RegisterDTO & { hashedPassword: string }
+    data: RegisterDTO & { hashedPassword: string; organizationId: string }
   ): Promise<AuthUser> {
     const entity = this.repository.create({
       name: data.name,
       email: data.email,
       password: data.hashedPassword,
+      organizationId: data.organizationId,
     })
     const saved = await this.repository.save(entity)
     return this.toAuthUser(saved)
@@ -28,6 +29,7 @@ export class PostgresAuthRepository implements AuthRepository {
   private toAuthUser(entity: UserEntity): AuthUser {
     return {
       id: entity.id,
+      organizationId: entity.organizationId,
       name: entity.name,
       email: entity.email,
       password: entity.password!,

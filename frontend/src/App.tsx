@@ -1,29 +1,61 @@
 import { useState } from 'react'
+import { LoginForm } from './components/LoginForm'
+
+interface User {
+  id: string
+  name: string
+  email: string
+  organizationId: string
+}
+
+interface AuthState {
+  token: string
+  user: User
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [auth, setAuth] = useState<AuthState | null>(null)
+
+  const handleLoginSuccess = (data: { token: string; user: User }) => {
+    setAuth(data)
+    localStorage.setItem('token', data.token)
+  }
+
+  const handleLogout = () => {
+    setAuth(null)
+    localStorage.removeItem('token')
+  }
+
+  if (!auth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <LoginForm onSuccess={handleLoginSuccess} />
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white text-slate-800">
-      <div className="max-w-5xl mx-auto p-8 text-center">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Fullstack Evaluation</h1>
-          <p className="text-slate-500">React + TypeScript + Vite</p>
-        </header>
-        <main>
-          <div className="p-8">
+    <div className="min-h-screen bg-slate-100">
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-slate-900">CRM Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-slate-600">{auth.user.name}</span>
             <button
-              onClick={() => setCount((count) => count + 1)}
-              className="px-5 py-2.5 rounded-lg bg-slate-900 text-white font-medium cursor-pointer transition-colors hover:bg-slate-700 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              Count is {count}
+              Logout
             </button>
-            <p className="mt-4 text-slate-400">
-              Edit <code className="bg-slate-100 px-1.5 py-0.5 rounded text-sm">src/App.tsx</code> and save to test HMR
-            </p>
           </div>
-        </main>
-      </div>
+        </div>
+      </header>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Welcome, {auth.user.name}</h2>
+          <p className="text-slate-600">You are now logged in to your organization.</p>
+        </div>
+      </main>
     </div>
   )
 }
