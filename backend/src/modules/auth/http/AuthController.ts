@@ -48,4 +48,74 @@ export class AuthController {
       throw error
     }
   }
+
+  async refresh(req: Request, res: Response): Promise<void> {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      res.status(400).json({ error: 'Refresh token is required' })
+      return
+    }
+
+    try {
+      const result = await this.authUseCases.refreshToken(refreshToken)
+      res.json(result)
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid refresh token') || error.message.includes('expired') || error.message.includes('revoked')) {
+          res.status(401).json({ error: error.message })
+          return
+        }
+      }
+      throw error
+    }
+  }
+
+  async revoke(req: Request, res: Response): Promise<void> {
+    const { refreshToken } = req.body
+
+    if (!refreshToken) {
+      res.status(400).json({ error: 'Refresh token is required' })
+      return
+    }
+
+    try {
+      await this.authUseCases.revokeToken(refreshToken)
+      res.json({ message: 'Token revoked successfully' })
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to revoke token' })
+    }
+  }
+
+  async sessions(req: Request, res: Response): Promise<void> {
+    const userId = (req as any).user?.userId
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    try {
+      const sessions = await this.authUseCases.getUserSessions(userId)
+      res.json({ sessions })
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get sessions' })
+    }
+  }
+
+  async logoutAll(req: Request, res: Response): Promise<void> {
+    const userId = (req as any).user?.userId
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    try {
+      await this.authUseCases.revokeAllUserTokens(userId)
+      res.json({ message: 'All sessions revoked successfully' })
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to revoke sessions' })
+    }
+  }
 }

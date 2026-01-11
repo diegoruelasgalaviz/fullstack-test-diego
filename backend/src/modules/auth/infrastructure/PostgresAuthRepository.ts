@@ -5,6 +5,14 @@ import { UserEntity } from '@modules/users/infrastructure'
 export class PostgresAuthRepository implements AuthRepository {
   constructor(private readonly repository: Repository<UserEntity>) {}
 
+  async findById(id: string): Promise<AuthUser | null> {
+    const entity = await this.repository.findOne({ where: { id } })
+    if (!entity || !entity.password) {
+      return null
+    }
+    return this.toAuthUser(entity)
+  }
+
   async findByEmail(email: string): Promise<AuthUser | null> {
     const entity = await this.repository.findOne({ where: { email } })
     if (!entity || !entity.password) {

@@ -79,7 +79,7 @@ describe('LoginPage', () => {
   it('should call authService.login on form submit', async () => {
     const user = userEvent.setup()
     vi.mocked(authService.login).mockResolvedValueOnce({
-      token: { accessToken: 'test-token', expiresAt: '2025-01-01' },
+      token: { accessToken: 'test-token', refreshToken: 'refresh-token', expiresAt: '2025-01-01' },
       user: { id: '1', name: 'Test', email: 'test@example.com', organizationId: 'org-1' },
     })
 
@@ -100,7 +100,7 @@ describe('LoginPage', () => {
   it('should navigate to dashboard on successful login', async () => {
     const user = userEvent.setup()
     vi.mocked(authService.login).mockResolvedValueOnce({
-      token: { accessToken: 'test-token', expiresAt: '2025-01-01' },
+      token: { accessToken: 'test-token', refreshToken: 'refresh-token', expiresAt: '2025-01-01' },
       user: { id: '1', name: 'Test', email: 'test@example.com', organizationId: 'org-1' },
     })
 
@@ -119,7 +119,7 @@ describe('LoginPage', () => {
     const user = userEvent.setup()
     vi.mocked(authService.login).mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve({
-        token: { accessToken: 'test-token', expiresAt: '2025-01-01' },
+        token: { accessToken: 'test-token', refreshToken: 'refresh-token', expiresAt: '2025-01-01' },
         user: { id: '1', name: 'Test', email: 'test@example.com', organizationId: 'org-1' },
       }), 100))
     )

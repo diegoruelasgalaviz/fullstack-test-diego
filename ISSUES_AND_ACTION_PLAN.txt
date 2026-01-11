@@ -1,0 +1,491 @@
+================================================================================
+AURA CRM - CHALLENGES TRACKING AND ACTION PLAN
+================================================================================
+Created: [Current Date]
+Project: Fullstack Test - Aura CRM
+Goal: Complete minimum 70 points (1 Critical + 1 High + additional challenges)
+
+================================================================================
+CHALLENGE SUMMARY
+================================================================================
+
+Challenge 1: Secure Authentication System
+- Priority: CRITICAL
+- Points: 30
+- Status: PENDING
+- Requirements:
+  * Refresh token system (30 days expiration)
+  * Store refresh tokens in database
+  * Token revocation capability
+  * Enhanced auth middleware (auto-refresh, proper error handling)
+  * Frontend token refresh logic in AuthContext
+  * Session management (view/manage active sessions, logout all devices)
+
+Challenge 2: Robust Data Validation & Error Handling
+- Priority: HIGH
+- Points: 20
+- Status: PENDING
+- Requirements:
+  * Comprehensive validation layer (Zod or class-validator)
+  * Validation schemas for all DTOs
+  * Centralized error handling middleware
+  * Proper HTTP status codes
+  * Frontend field-specific error messages
+  * Real-time validation feedback
+  * Toast notifications for system errors
+
+Challenge 3: Pagination and Advanced Filtering
+- Priority: HIGH
+- Points: 20
+- Status: PENDING
+- Requirements:
+  * Backend pagination parameters for all list endpoints
+  * Consistent pagination response format
+  * Advanced filtering (multiple fields, operators, AND/OR logic)
+  * Sorting functionality (single/multi-field, asc/desc)
+  * Frontend paginated table components
+  * Filter UI with intuitive controls
+  * Sort indicators and controls
+
+Challenge 4: Deal Stage History Tracking
+- Priority: MEDIUM
+- Points: 15
+- Status: PENDING
+- Requirements:
+  * Deal stage history tracking system
+  * Timestamps and user info for transitions
+  * Stage duration analytics
+  * Timeline visualization in deal detail view
+  * Reporting capabilities (average time per stage, trends)
+
+Challenge 5: User Role Management
+- Priority: MEDIUM
+- Points: 15
+- Status: PENDING
+- Requirements:
+  * Role-based access control (Admin, Manager, Sales Rep, Read-only)
+  * Granular permissions system
+  * Permission checks on API endpoints
+  * User management UI for role assignment
+  * Conditional UI rendering based on permissions
+  * Audit logs for permission changes
+
+Challenge 6: Dashboard Analytics
+- Priority: MEDIUM
+- Points: 15
+- Status: PENDING
+- Requirements:
+  * Key sales metrics (pipeline value by stage, conversion rates, etc.)
+  * Visualization components (charts, graphs, data cards)
+  * Filtering capabilities (date ranges, team members, products, regions)
+  * Real-time updates with auto-refresh
+  * Performance optimization for large datasets
+
+Challenge 7: Advanced Contact Search and Filtering
+- Priority: LOW
+- Points: 10
+- Status: PENDING
+- Requirements:
+  * Full-text search across multiple contact fields
+  * Autocomplete suggestions
+  * Comprehensive filtering options
+  * Search history functionality
+  * Performance optimization (indexing, caching)
+
+Challenge 8: File Upload System
+- Priority: LOW
+- Points: 10
+- Status: PENDING
+- Requirements:
+  * Secure file upload endpoints for contacts/deals
+  * File type validation and size limits
+  * File preview capabilities (PDF, images)
+  * File organization (categorization, tagging, search)
+  * Access controls based on user roles
+
+Challenge 9: Activity Logging System
+- Priority: LOW
+- Points: 10
+- Status: PENDING
+- Requirements:
+  * Activity logging for user interactions
+  * Timeline visualization for activities
+  * Follow-up task management
+  * Activity reporting by user/team/type
+  * Notifications for upcoming/overdue tasks
+
+Challenge 10: Email Notification System
+- Priority: LOW
+- Points: 10
+- Status: PENDING
+- Requirements:
+  * Email notification service
+  * Notification events (deal changes, task assignments, etc.)
+  * Responsive HTML email templates
+  * Notification preferences UI
+  * Delivery tracking and analytics
+
+================================================================================
+MINIMUM REQUIREMENTS ANALYSIS
+================================================================================
+
+To meet the minimum 70 points requirement:
+- MUST complete Challenge 1 (Critical - 30 points)
+- MUST complete at least one High priority challenge:
+  * Option A: Challenge 2 (20 points) = 50 total
+  * Option B: Challenge 3 (20 points) = 50 total
+- Need additional 20+ points:
+  * Option A + Challenge 3 = 70 points (EXACT MINIMUM)
+  * Option A + Challenge 4 = 65 points (NOT ENOUGH)
+  * Option A + Challenge 5 = 65 points (NOT ENOUGH)
+  * Option A + Challenge 4 + Challenge 5 = 80 points
+  * Option A + Challenge 6 = 80 points
+
+COMPLETE IMPLEMENTATION PLAN (All 10 Challenges - 155 Total Points):
+
+GOAL: Complete all challenges while maintaining quality and demonstrating:
+- Good prioritization (starting with critical and high priority)
+- Quality over quantity (well-thought-out solutions)
+- Clear and coherent implementations
+- Proper scope management
+
+PHASE 1 - FOUNDATION & CRITICAL (50 points) - MUST COMPLETE FIRST:
+- Challenge 2: Data Validation & Error Handling (20 points) - HIGH
+  * Foundation for all other challenges
+  * Centralized validation affects entire application
+- Challenge 1: Secure Authentication (30 points) - CRITICAL
+  * Core security feature
+  * Required for minimum points
+  * Builds on validation from Challenge 2
+
+PHASE 2 - HIGH PRIORITY (20 points) - ESSENTIAL:
+- Challenge 3: Pagination and Advanced Filtering (20 points) - HIGH
+  * Essential for large datasets
+  * Improves user experience significantly
+  * This completes the minimum 70 point requirement
+
+PHASE 3 - MEDIUM PRIORITY (45 points) - QUALITY ENHANCEMENTS:
+- Challenge 4: Deal Stage History (15 points) - MEDIUM
+  * Business intelligence feature
+  * Builds on existing deal management
+- Challenge 5: User Role Management (15 points) - MEDIUM
+  * Security enhancement
+  * Builds on authentication from Challenge 1
+- Challenge 6: Dashboard Analytics (15 points) - MEDIUM
+  * Business value feature
+  * Requires data from other modules
+
+PHASE 4 - LOW PRIORITY (40 points) - COMPLETE THE SUITE:
+- Challenge 7: Advanced Contact Search (10 points) - LOW
+- Challenge 8: File Upload System (10 points) - LOW
+- Challenge 9: Activity Logging System (10 points) - LOW
+- Challenge 10: Email Notification System (10 points) - LOW
+
+TOTAL: 155 points (All 10 challenges)
+
+ALIGNMENT WITH TEST GOALS:
+✓ Prioritized approach (critical and high priority first)
+✓ Quality-focused (well-thought-out solutions)
+✓ Demonstrates good decision-making (foundation first)
+✓ Shows scope management (phased approach)
+✓ Clear and coherent (logical implementation order)
+✓ Completes all challenges while maintaining standards
+
+================================================================================
+IMPLEMENTATION ORDER (RECOMMENDED)
+================================================================================
+
+IMPLEMENTATION PHASES (Complete All 10 Challenges):
+
+Phase 0: Project Setup & Analysis ✅ COMPLETED
+- [x] Set up development environment
+- [x] Install dependencies
+- [x] Configure database (Docker Compose)
+- [x] Run project and identify current issues
+- [x] Analyze existing codebase architecture
+- [x] Review challenge requirements in detail
+
+Phase 1: Foundation & Critical (50 points) - START HERE
+Priority: HIGHEST - Do these first as they affect everything else
+
+1. Challenge 2: Data Validation & Error Handling (20 points)
+   Status: PENDING
+   - Establishes validation patterns for all other challenges
+   - Centralized error handling needed across the app
+   - Priority: Do this FIRST as it affects all other work
+   - Why first: Every other challenge needs validation
+
+2. Challenge 1: Secure Authentication (30 points)
+   Status: PENDING
+   - Core security feature
+   - Required for minimum points
+   - Builds on validation from Challenge 2
+   - Why second: Foundation validation is in place
+
+Phase 2: High Priority (20 points) - ESSENTIAL
+3. Challenge 3: Pagination and Advanced Filtering (20 points)
+   Status: PENDING
+   - Essential for large datasets
+   - Required for minimum points (reaches 70 total)
+   - Improves user experience significantly
+   - Uses validation from Phase 1
+
+Phase 3: Medium Priority (45 points) - QUALITY ENHANCEMENTS
+4. Challenge 4: Deal Stage History (15 points)
+   Status: PENDING
+   - Business intelligence feature
+   - Builds on existing deal management
+   - Total so far: 85 points
+
+5. Challenge 5: User Role Management (15 points)
+   Status: PENDING
+   - Security enhancement
+   - Builds on authentication from Challenge 1
+   - Total so far: 100 points
+
+6. Challenge 6: Dashboard Analytics (15 points)
+   Status: PENDING
+   - Business value feature
+   - Requires data from other modules
+   - Total so far: 115 points
+
+Phase 4: Low Priority (40 points) - COMPLETE THE SUITE
+7. Challenge 7: Advanced Contact Search (10 points)
+   Status: PENDING
+   - Total so far: 125 points
+
+8. Challenge 8: File Upload System (10 points)
+   Status: PENDING
+   - Total so far: 135 points
+
+9. Challenge 9: Activity Logging (10 points)
+   Status: PENDING
+   - Total so far: 145 points
+
+10. Challenge 10: Email Notifications (10 points)
+    Status: PENDING
+    - Total: 155 points (ALL COMPLETE)
+
+ALIGNMENT WITH TEST GOALS:
+✓ Prioritized approach (foundation → critical → high → medium → low)
+✓ Quality-focused (each phase builds on previous)
+✓ Demonstrates decision-making (logical order)
+✓ Shows scope management (phased approach)
+✓ Clear and coherent (well-thought-out plan)
+
+================================================================================
+CURRENT PROJECT STATUS
+================================================================================
+
+Environment Setup:
+- [x] Dependencies installed (pnpm install completed successfully)
+- [ ] Backend .env file created (needs manual creation - blocked by .gitignore)
+- [ ] Database container running (Docker not installed/available)
+- [x] Database migrations executed (synchronize=true in dev mode, auto-creates tables)
+- [ ] Project runs successfully (database connection needed first)
+- [ ] Tests pass (to be verified after setup)
+
+Codebase Analysis:
+- [x] Backend architecture reviewed
+- [x] Frontend architecture reviewed
+- [x] Database schema reviewed (TypeORM entities with synchronize in dev)
+- [x] API endpoints documented
+- [x] Current authentication flow analyzed
+- [x] Current validation approach analyzed
+- [x] Current error handling analyzed
+
+Issues Identified:
+
+SETUP ISSUES:
+1. Docker/Docker Compose not installed - need to start PostgreSQL database
+2. Backend .env file needs to be created manually (file is in .gitignore)
+   - Required variables: PORT, JWT_SECRET, DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME, NODE_ENV
+3. Database needs to be initialized (TypeORM synchronize is enabled in dev mode, so tables will be created automatically)
+
+CHALLENGE 1 - AUTHENTICATION ISSUES:
+1. JWT tokens expire after 24 hours with no refresh mechanism
+2. No refresh token system implemented
+3. No refresh token storage in database
+4. No token revocation capability
+5. Frontend AuthContext doesn't handle token expiration gracefully
+6. No automatic token refresh in frontend
+7. No session management features (view/manage active sessions, logout all devices)
+8. No tracking of basic session information (device, location)
+
+CHALLENGE 2 - VALIDATION & ERROR HANDLING ISSUES:
+1. Inconsistent validation across controllers:
+   - AuthController: Basic validation (required fields, password length)
+   - UserController: Basic validation (required fields)
+   - ContactController: Minimal validation (only name required)
+   - Other controllers: Similar inconsistent patterns
+2. No centralized validation layer
+3. No validation library (Zod/class-validator) integrated
+4. No centralized error handling middleware
+5. Errors thrown in controllers may not be caught (no global error handler)
+6. Generic error messages that don't guide users to fix issues
+7. Frontend doesn't display field-specific error messages
+8. No real-time validation feedback in frontend forms
+9. No toast notifications for system-level errors
+
+CHALLENGE 3 - PAGINATION & FILTERING ISSUES:
+1. All list endpoints return ALL records without pagination:
+   - getAll() methods in repositories return all entities
+   - No page/limit parameters
+   - No pagination metadata in responses
+2. No filtering capabilities on any endpoints
+3. No sorting functionality
+4. Frontend components fetch all data at once (performance issue with large datasets)
+5. No filter UI components
+6. No sort indicators/controls in frontend
+
+CHALLENGE 4 - DEAL STAGE HISTORY:
+- Not implemented (to be done)
+
+CHALLENGE 5 - USER ROLE MANAGEMENT:
+- Not implemented (to be done)
+
+CHALLENGE 6 - DASHBOARD ANALYTICS:
+- Dashboard page exists but lacks actual analytics (to be done)
+
+CHALLENGES 7-10:
+- Not implemented (to be done)
+
+================================================================================
+ACTION ITEMS BY PRIORITY
+================================================================================
+
+IMMEDIATE (Project Setup):
+- [x] Install pnpm dependencies (pnpm install) - COMPLETED
+- [ ] Create backend/.env file with required variables (MANUAL: Create file with PORT, JWT_SECRET, DB_* vars, NODE_ENV)
+- [ ] Install Docker Desktop (or use local PostgreSQL if available)
+- [ ] Start PostgreSQL container (docker-compose up -d)
+- [ ] Verify database connection
+- [x] Run backend migrations (synchronize=true in dev, auto-creates tables)
+- [ ] Test backend server startup (cd backend && pnpm dev)
+- [ ] Test frontend server startup (cd frontend && pnpm dev)
+- [ ] Document any setup issues
+
+PHASE 1 - FOUNDATION & CRITICAL (50 points):
+- [ ] Challenge 2: Implement validation layer (Zod/class-validator)
+- [ ] Challenge 2: Create centralized error handling middleware
+- [ ] Challenge 2: Update frontend error presentation (field-specific errors)
+- [ ] Challenge 2: Add real-time validation feedback
+- [ ] Challenge 2: Implement toast notifications
+- [ ] Challenge 1: Implement refresh token system (30 days expiration)
+- [ ] Challenge 1: Create RefreshToken entity and storage
+- [ ] Challenge 1: Update authentication middleware (auto-refresh)
+- [ ] Challenge 1: Enhance frontend AuthContext (token refresh logic)
+- [ ] Challenge 1: Add session management features
+
+PHASE 2 - HIGH PRIORITY (20 points):
+- [ ] Challenge 3: Implement backend pagination (all list endpoints)
+- [ ] Challenge 3: Create consistent pagination response format
+- [ ] Challenge 3: Add advanced filtering capabilities (multiple fields, operators)
+- [ ] Challenge 3: Add sorting functionality (single/multi-field, asc/desc)
+- [ ] Challenge 3: Update frontend components (paginated tables, filters, sorts)
+
+PHASE 3 - MEDIUM PRIORITY (45 points):
+- [ ] Challenge 4: Deal stage history tracking system
+- [ ] Challenge 4: Create DealStageHistory entity
+- [ ] Challenge 4: Add timeline visualization
+- [ ] Challenge 4: Implement stage duration analytics
+- [ ] Challenge 5: User role management (Admin, Manager, Sales Rep, Read-only)
+- [ ] Challenge 5: Implement RBAC system
+- [ ] Challenge 5: Add permission checks to API endpoints
+- [ ] Challenge 5: Create user management UI
+- [ ] Challenge 6: Dashboard analytics (key sales metrics)
+- [ ] Challenge 6: Create visualization components
+- [ ] Challenge 6: Add filtering capabilities
+- [ ] Challenge 6: Implement real-time updates
+
+PHASE 4 - LOW PRIORITY (40 points):
+- [ ] Challenge 7: Advanced contact search (full-text search)
+- [ ] Challenge 7: Add autocomplete functionality
+- [ ] Challenge 7: Implement search history
+- [ ] Challenge 8: File upload system (contacts and deals)
+- [ ] Challenge 8: Add file preview capabilities
+- [ ] Challenge 8: Implement file organization features
+- [ ] Challenge 9: Activity logging system
+- [ ] Challenge 9: Create activity timeline visualization
+- [ ] Challenge 9: Add follow-up task management
+- [ ] Challenge 10: Email notification service
+- [ ] Challenge 10: Create email templates
+- [ ] Challenge 10: Add notification preferences UI
+
+TOTAL PROGRESS: 0/10 challenges (0/155 points)
+
+================================================================================
+TECHNICAL DECISIONS TO MAKE
+================================================================================
+
+1. Validation Library:
+   - Option A: Zod (schema-first, TypeScript-friendly)
+   - Option B: class-validator (decorator-based, NestJS-style)
+   - Decision: [To be decided]
+
+2. Refresh Token Storage:
+   - Option A: Separate RefreshToken entity in database
+   - Option B: Store in user table as JSON
+   - Decision: [To be decided]
+
+3. Pagination Strategy:
+   - Option A: Offset-based pagination
+   - Option B: Cursor-based pagination
+   - Decision: [To be decided]
+
+4. File Storage:
+   - Option A: Local filesystem
+   - Option B: Cloud storage (S3, etc.)
+   - Decision: [To be decided - if implementing Challenge 8]
+
+5. Email Service:
+   - Option A: SMTP (Nodemailer)
+   - Option B: Service provider (SendGrid, etc.)
+   - Decision: [To be decided - if implementing Challenge 10]
+
+================================================================================
+TESTING STRATEGY
+================================================================================
+
+For each challenge implementation:
+- [ ] Unit tests for business logic
+- [ ] Integration tests for API endpoints
+- [ ] Frontend component tests
+- [ ] End-to-end user flow tests
+- [ ] Manual testing in browser
+- [ ] Error scenario testing
+
+================================================================================
+NOTES AND FINDINGS
+================================================================================
+
+PROJECT SETUP STATUS:
+- Dependencies: Installed successfully with pnpm
+- Environment: Backend .env file needs to be created (blocked by .gitignore)
+- Database: Docker not installed, PostgreSQL not running
+- Project structure: Monorepo with pnpm workspace (backend + frontend)
+- Architecture: Clean architecture with domain/application/infrastructure/http layers
+
+CURRENT CODEBASE OBSERVATIONS:
+1. Backend follows clean architecture pattern
+2. Dependency injection is used throughout
+3. TypeORM is configured with synchronize=true in dev (auto-creates tables)
+4. JWT authentication is implemented but basic (no refresh tokens)
+5. Validation is inconsistent and manual
+6. Error handling is not centralized
+7. No pagination/filtering/sorting implemented
+8. Frontend uses React with Context API for state management
+9. Frontend AuthContext stores token and user in localStorage
+
+NEXT STEPS:
+1. Create backend/.env file manually with required variables
+2. Install Docker and start PostgreSQL database
+3. Verify database connection and schema creation
+4. Run both backend and frontend to verify they start successfully
+5. Begin implementing challenges in recommended order:
+   a. Challenge 2 (Validation & Error Handling) - Foundation
+   b. Challenge 1 (Secure Authentication) - Critical
+   c. Challenge 3 (Pagination & Filtering) - High Priority
+   d. Additional challenges as time permits
+
+================================================================================

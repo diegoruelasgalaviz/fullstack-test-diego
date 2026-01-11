@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { randomBytes } from 'crypto'
 import type { AuthToken, TokenGenerator, TokenPayload } from '../domain'
 
 export class JwtTokenGenerator implements TokenGenerator {
@@ -15,8 +16,12 @@ export class JwtTokenGenerator implements TokenGenerator {
       { expiresIn: '24h' }
     )
 
+    // Generate secure random refresh token (64 bytes = 128 hex characters)
+    const refreshToken = randomBytes(64).toString('hex')
+
     return {
       accessToken,
+      refreshToken,
       expiresAt,
     }
   }

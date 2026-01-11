@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { contactService, type Contact } from '../services'
+import { contactService, type Contact, ApiError } from '../services'
 
 export function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -19,6 +19,16 @@ export function ContactsPage() {
       setContacts(data)
     } catch (error) {
       console.error('Failed to load contacts:', error)
+      // Check if it's an authentication error
+      if (error instanceof ApiError && error.status === 401) {
+        console.log('🔄 Authentication failed, triggering logout...')
+        // Clear tokens and redirect
+        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.replace('/login')
+        return
+      }
     } finally {
       setLoading(false)
     }

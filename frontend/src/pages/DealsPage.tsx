@@ -1,5 +1,5 @@
 import { useEffect, useState, type DragEvent } from 'react'
-import { dealService, workflowService, contactService, type Deal, type Stage, type Contact } from '../services'
+import { dealService, workflowService, contactService, type Deal, type Stage, type Contact, ApiError } from '../services'
 
 type ViewMode = 'kanban' | 'table'
 
@@ -31,6 +31,16 @@ export function DealsPage() {
       setContacts(contactsData)
     } catch (error) {
       console.error('Failed to load data:', error)
+      // Check if it's an authentication error
+      if (error instanceof ApiError && error.status === 401) {
+        console.log('🔄 Authentication failed, triggering logout...')
+        // Clear tokens and redirect
+        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.replace('/login')
+        return
+      }
     } finally {
       setLoading(false)
     }

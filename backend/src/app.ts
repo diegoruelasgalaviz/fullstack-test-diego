@@ -16,6 +16,8 @@ import {
   JwtTokenGenerator,
   AuthController,
   createAuthRoutes,
+  RefreshTokenEntity,
+  PostgresRefreshTokenRepository,
 } from '@modules/auth'
 import {
   OrganizationUseCases,
@@ -88,11 +90,15 @@ export function createApp(dataSource: DataSource): Express {
   const authRepository = new PostgresAuthRepository(
     dataSource.getRepository(UserEntity)
   )
+  const refreshTokenRepository = new PostgresRefreshTokenRepository(
+    dataSource.getRepository(RefreshTokenEntity)
+  )
   const passwordHasher = new BcryptPasswordHasher()
   const authUseCases = new AuthUseCases(
     authRepository,
     passwordHasher,
     tokenGenerator,
+    refreshTokenRepository,
     organizationRepository,
     workflowRepository
   )
@@ -113,7 +119,7 @@ export function createApp(dataSource: DataSource): Express {
   const dealController = new DealController(dealUseCases)
 
   // Routes (public)
-  app.use('/api/auth', createAuthRoutes(authController))
+  app.use('/api/auth', createAuthRoutes(authController, authMiddleware))
   app.use('/api/users', createUserRoutes(userController))
 
   // Routes (protected - require auth)

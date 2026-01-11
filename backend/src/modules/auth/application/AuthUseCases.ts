@@ -5,15 +5,19 @@ import type {
   AuthRepository,
   PasswordHasher,
   TokenGenerator,
+  RefreshTokenRepository,
 } from '../domain'
 import type { OrganizationRepository } from '@modules/organization/domain'
 import type { WorkflowRepository } from '@modules/workflow/domain'
 
 export class AuthUseCases {
+  private readonly REFRESH_TOKEN_EXPIRY_DAYS = 30
+
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenGenerator: TokenGenerator,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly organizationRepository: OrganizationRepository,
     private readonly workflowRepository: WorkflowRepository
   ) {}
@@ -55,6 +59,18 @@ export class AuthUseCases {
 
     const token = this.tokenGenerator.generate(user.id, organization.id)
 
+    // Store refresh token in database
+    const refreshTokenExpiresAt = new Date()
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + this.REFRESH_TOKEN_EXPIRY_DAYS)
+
+    await this.refreshTokenRepository.create({
+      userId: user.id,
+      token: token.refreshToken,
+      expiresAt: refreshTokenExpiresAt,
+      device: null,
+      ipAddress: null,
+    })
+
     return {
       user: {
         id: user.id,
@@ -86,6 +102,18 @@ export class AuthUseCases {
 
     const token = this.tokenGenerator.generate(user.id, user.organizationId)
 
+    // Store refresh token in database
+    const refreshTokenExpiresAt = new Date()
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + this.REFRESH_TOKEN_EXPIRY_DAYS)
+
+    await this.refreshTokenRepository.create({
+      userId: user.id,
+      token: token.refreshToken,
+      expiresAt: refreshTokenExpiresAt,
+      device: null,
+      ipAddress: null,
+    })
+
     return {
       user: {
         id: user.id,
@@ -95,5 +123,73 @@ export class AuthUseCases {
       },
       token,
     }
+  }
+
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    const storedToken = await this.refreshTokenRepository.findByToken(refreshToken)
+
+    if (!storedToken) {
+      throw new Error('Invalid refresh token')
+    }
+
+    if (storedToken.isRevoked) {
+      throw new Error('Refresh token has been revoked')
+    }
+
+    if (storedToken.expiresAt < new Date()) {
+      throw new Error('Refresh token has expired')
+    }
+
+    // Get user information
+    const user = await this.authRepository.findById(storedToken.userId)
+    if (!user || !user.organizationId) {
+      throw new Error('User not found or has no organization')
+    }
+
+    // Generate new access token
+    const newToken = this.tokenGenerator.generate(user.id, user.organizationId)
+
+    // Revoke old refresh token
+    await this.refreshTokenRepository.revokeToken(refreshToken)
+
+    // Store new refresh token
+    const refreshTokenExpiresAt = new Date()
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + this.REFRESH_TOKEN_EXPIRY_DAYS)
+
+    await this.refreshTokenRepository.create({
+      userId: user.id,
+      token: newToken.refreshToken,
+      expiresAt: refreshTokenExpiresAt,
+      device: storedToken.device,
+      ipAddress: storedToken.ipAddress,
+    })
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        organizationId: user.organizationId,
+      },
+      token: newToken,
+    }
+  }
+
+  async revokeToken(refreshToken: string): Promise<void> {
+    await this.refreshTokenRepository.revokeToken(refreshToken)
+  }
+
+  async revokeAllUserTokens(userId: string): Promise<void> {
+    await this.refreshTokenRepository.revokeAllUserTokens(userId)
+  }
+
+  async getUserSessions(userId: string): Promise<Array<{ id: string; device: string | null; ipAddress: string | null; createdAt: Date }>> {
+    const tokens = await this.refreshTokenRepository.findByUserId(userId)
+    return tokens.map((token) => ({
+      id: token.id,
+      device: token.device,
+      ipAddress: token.ipAddress,
+      createdAt: token.createdAt,
+    }))
   }
 }

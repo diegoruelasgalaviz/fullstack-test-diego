@@ -9,6 +9,7 @@ export interface User {
 
 export interface AuthToken {
   accessToken: string
+  refreshToken: string
   expiresAt: string
 }
 
@@ -35,11 +36,24 @@ export const authService = {
   register: (credentials: RegisterCredentials) =>
     api.post<AuthResponse>('/auth/register', credentials),
 
+  refreshToken: (refreshToken: string) =>
+    api.post<AuthResponse>('/auth/refresh', { refreshToken }),
+
+  revokeToken: (refreshToken: string) =>
+    api.post('/auth/revoke', { refreshToken }),
+
   getToken: () => localStorage.getItem('token'),
 
   setToken: (token: string) => localStorage.setItem('token', token),
 
-  removeToken: () => localStorage.removeItem('token'),
+  getRefreshToken: () => localStorage.getItem('refreshToken'),
+
+  setRefreshToken: (token: string) => localStorage.setItem('refreshToken', token),
+
+  removeTokens: () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
+  },
 
   isAuthenticated: () => !!localStorage.getItem('token'),
 }
