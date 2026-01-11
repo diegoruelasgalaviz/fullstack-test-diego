@@ -2,6 +2,7 @@ import express, { type Express } from 'express'
 import cors from 'cors'
 import type { DataSource } from 'typeorm'
 import { createAuthMiddleware } from '@shared/http'
+import { errorHandler, notFoundHandler } from '@shared/http/error.middleware'
 import {
   UserUseCases,
   UserEntity,
@@ -132,6 +133,10 @@ export function createApp(dataSource: DataSource): Express {
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() })
   })
+
+  // Error handling middleware (must be last)
+  app.use(notFoundHandler)
+  app.use(errorHandler)
 
   return app
 }

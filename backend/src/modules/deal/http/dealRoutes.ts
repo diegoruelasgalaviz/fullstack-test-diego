@@ -1,5 +1,7 @@
 import { Router, type RequestHandler } from 'express'
 import type { DealController } from './DealController'
+import { validateBody } from '@shared/validation'
+import { createDealSchema, updateDealSchema } from '@shared/validation'
 
 export function createDealRoutes(
   controller: DealController,

@@ -7,16 +7,6 @@ export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     const { name, email, password } = req.body
 
-    if (!name || !email || !password) {
-      res.status(400).json({ error: 'Name, email and password are required' })
-      return
-    }
-
-    if (password.length < 6) {
-      res.status(400).json({ error: 'Password must be at least 6 characters' })
-      return
-    }
-
     try {
       const result = await this.authUseCases.register({ name, email, password })
       res.status(201).json(result)
@@ -31,11 +21,6 @@ export class AuthController {
 
   async login(req: Request, res: Response): Promise<void> {
     const { email, password } = req.body
-
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' })
-      return
-    }
 
     try {
       const result = await this.authUseCases.login({ email, password })

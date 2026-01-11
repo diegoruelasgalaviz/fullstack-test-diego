@@ -33,11 +33,6 @@ export class ContactController {
     const { organizationId } = req.user
     const { name, email, phone } = req.body
 
-    if (!name) {
-      res.status(400).json({ error: 'name is required' })
-      return
-    }
-
     const contact = await this.contactUseCases.createContact({
       organizationId,
       name,

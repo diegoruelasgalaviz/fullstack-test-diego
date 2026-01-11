@@ -1,5 +1,7 @@
 import { useEffect, useState, type DragEvent } from 'react'
-import { dealService, workflowService, contactService, type Deal, type Stage, type Contact, ApiError } from '../services'
+import { dealService, workflowService, contactService, type Deal, type Stage, type Contact } from '../services'
+import { ApiError } from '../services/api'
+import { useToast } from '../context/ToastContext'
 
 type ViewMode = 'kanban' | 'table'
 
@@ -13,6 +15,8 @@ export function DealsPage() {
   const [formData, setFormData] = useState({ title: '', value: '', contactId: '', stageId: '' })
   const [saving, setSaving] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const { addToast } = useToast()
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null)
 
   useEffect(() => {
@@ -31,16 +35,28 @@ export function DealsPage() {
       setContacts(contactsData)
     } catch (error) {
       console.error('Failed to load data:', error)
-      // Check if it's an authentication error
+
+      // Handle authentication errors
       if (error instanceof ApiError && error.status === 401) {
         console.log('🔄 Authentication failed, triggering logout...')
-        // Clear tokens and redirect
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('user')
         window.location.replace('/login')
         return
       }
+
+      // Handle other API errors with toast
+      if (error instanceof ApiError) {
+        addToast({
+          type: 'error',
+          title: 'Failed to Load Data',
+          message: error.message || 'An unexpected error occurred',
+        })
+      }
+
+      // Log validation failures for monitoring
+      console.log('📊 Validation error logged:', error)
     } finally {
       setLoading(false)
     }
@@ -66,6 +82,7 @@ export function DealsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
+    setValidationErrors({}) // Clear previous validation errors
 
     try {
       const data = {
@@ -82,8 +99,42 @@ export function DealsPage() {
       }
       await loadData()
       setShowForm(false)
+      setFormData({ title: '', value: '', contactId: '', stageId: '' }) // Reset form
+
+      addToast({
+        type: 'success',
+        title: editingDeal ? 'Deal Updated' : 'Deal Created',
+        message: 'Deal saved successfully',
+      })
     } catch (error) {
       console.error('Failed to save deal:', error)
+
+      // Handle validation errors (400)
+      if (error instanceof ApiError && error.status === 400 && error.details) {
+        setValidationErrors(error.details)
+        addToast({
+          type: 'warning',
+          title: 'Validation Error',
+          message: 'Please check the form for errors',
+        })
+        // Log validation failures for monitoring
+        console.log('📊 Validation error logged:', error.details)
+      }
+      // Handle authentication errors
+      else if (error instanceof ApiError && error.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.replace('/login')
+      }
+      // Handle other API errors
+      else if (error instanceof ApiError) {
+        addToast({
+          type: 'error',
+          title: 'Save Failed',
+          message: error.message || 'An unexpected error occurred',
+        })
+      }
     } finally {
       setSaving(false)
     }
@@ -197,47 +248,95 @@ export function DealsPage() {
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value })
+                    if (validationErrors.title) {
+                      setValidationErrors({ ...validationErrors, title: '' })
+                    }
+                  }}
                   required
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.title
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
                 />
+                {validationErrors.title && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.title}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Value ($)</label>
                 <input
                   type="number"
                   value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, value: e.target.value })
+                    if (validationErrors.value) {
+                      setValidationErrors({ ...validationErrors, value: '' })
+                    }
+                  }}
                   required
                   min="0"
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.value
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
                 />
+                {validationErrors.value && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.value}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Contact</label>
                 <select
                   value={formData.contactId}
-                  onChange={(e) => setFormData({ ...formData, contactId: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => {
+                    setFormData({ ...formData, contactId: e.target.value })
+                    if (validationErrors.contactId) {
+                      setValidationErrors({ ...validationErrors, contactId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.contactId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
                 >
                   <option value="">No contact</option>
                   {contacts.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </select>
+                {validationErrors.contactId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.contactId}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Stage</label>
                 <select
                   value={formData.stageId}
-                  onChange={(e) => setFormData({ ...formData, stageId: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => {
+                    setFormData({ ...formData, stageId: e.target.value })
+                    if (validationErrors.stageId) {
+                      setValidationErrors({ ...validationErrors, stageId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.stageId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
                 >
                   <option value="">No stage</option>
                   {stages.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
                 </select>
+                {validationErrors.stageId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.stageId}</p>
+                )}
               </div>
             </div>
             <div className="flex gap-3">

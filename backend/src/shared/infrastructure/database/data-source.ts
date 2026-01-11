@@ -8,12 +8,14 @@ import { DealEntity } from '@modules/deal/infrastructure'
 import { RefreshTokenEntity } from '@modules/auth/infrastructure'
 
 export const AppDataSource = new DataSource({
-  type: 'postgres',
+  type: process.env.DB_TYPE === 'sqlite' ? 'sqlite' : 'postgres',
   host: process.env.DB_HOST ?? 'localhost',
   port: parseInt(process.env.DB_PORT ?? '5432'),
   username: process.env.DB_USERNAME ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
-  database: process.env.DB_NAME ?? 'fullstack_db',
+  database: process.env.DB_TYPE === 'sqlite'
+    ? (process.env.DB_NAME ?? 'database.sqlite')
+    : (process.env.DB_NAME ?? 'fullstack_db'),
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
   entities: [

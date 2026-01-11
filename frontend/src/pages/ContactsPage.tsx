@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { contactService, type Contact, ApiError } from '../services'
+import { contactService, type Contact } from '../services'
+import { ApiError } from '../services/api'
+import { useToast } from '../context/ToastContext'
 
 export function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -8,6 +10,8 @@ export function ContactsPage() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null)
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' })
   const [saving, setSaving] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const { addToast } = useToast()
 
   useEffect(() => {
     loadContacts()
@@ -19,16 +23,28 @@ export function ContactsPage() {
       setContacts(data)
     } catch (error) {
       console.error('Failed to load contacts:', error)
-      // Check if it's an authentication error
+
+      // Handle authentication errors
       if (error instanceof ApiError && error.status === 401) {
         console.log('🔄 Authentication failed, triggering logout...')
-        // Clear tokens and redirect
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('user')
         window.location.replace('/login')
         return
       }
+
+      // Handle other API errors with toast
+      if (error instanceof ApiError) {
+        addToast({
+          type: 'error',
+          title: 'Failed to Load Contacts',
+          message: error.message || 'An unexpected error occurred',
+        })
+      }
+
+      // Log validation failures for monitoring
+      console.log('📊 Validation error logged:', error)
     } finally {
       setLoading(false)
     }
@@ -53,6 +69,7 @@ export function ContactsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
+    setValidationErrors({}) // Clear previous validation errors
 
     try {
       if (editingContact) {
@@ -62,8 +79,42 @@ export function ContactsPage() {
       }
       await loadContacts()
       setShowForm(false)
+      setFormData({ name: '', email: '', phone: '' }) // Reset form
+
+      addToast({
+        type: 'success',
+        title: editingContact ? 'Contact Updated' : 'Contact Created',
+        message: 'Contact saved successfully',
+      })
     } catch (error) {
       console.error('Failed to save contact:', error)
+
+      // Handle validation errors (400)
+      if (error instanceof ApiError && error.status === 400 && error.details) {
+        setValidationErrors(error.details)
+        addToast({
+          type: 'warning',
+          title: 'Validation Error',
+          message: 'Please check the form for errors',
+        })
+        // Log validation failures for monitoring
+        console.log('📊 Validation error logged:', error.details)
+      }
+      // Handle authentication errors
+      else if (error instanceof ApiError && error.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        window.location.replace('/login')
+      }
+      // Handle other API errors
+      else if (error instanceof ApiError) {
+        addToast({
+          type: 'error',
+          title: 'Save Failed',
+          message: error.message || 'An unexpected error occurred',
+        })
+      }
     } finally {
       setSaving(false)
     }
@@ -110,28 +161,65 @@ export function ContactsPage() {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value })
+                  // Clear validation error when user starts typing
+                  if (validationErrors.name) {
+                    setValidationErrors({ ...validationErrors, name: '' })
+                  }
+                }}
                 required
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                  validationErrors.name
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-slate-300 focus:ring-indigo-500'
+                }`}
               />
+              {validationErrors.name && (
+                <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value })
+                  if (validationErrors.email) {
+                    setValidationErrors({ ...validationErrors, email: '' })
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                  validationErrors.email
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-slate-300 focus:ring-indigo-500'
+                }`}
               />
+              {validationErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                onChange={(e) => {
+                  setFormData({ ...formData, phone: e.target.value })
+                  if (validationErrors.phone) {
+                    setValidationErrors({ ...validationErrors, phone: '' })
+                  }
+                }}
+                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                  validationErrors.phone
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-slate-300 focus:ring-indigo-500'
+                }`}
               />
+              {validationErrors.phone && (
+                <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+              )}
             </div>
             <div className="flex gap-3">
               <button

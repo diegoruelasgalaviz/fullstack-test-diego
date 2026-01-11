@@ -1,9 +1,10 @@
 const API_BASE = '/api'
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public status: number,
-    message: string
+    message: string,
+    public details?: Record<string, string>
   ) {
     super(message)
     this.name = 'ApiError'
@@ -79,7 +80,7 @@ async function request<T>(
 
     // If refresh failed or no refresh token, throw original error
     const data = await response.json()
-    throw new ApiError(response.status, data.error || 'Request failed')
+    throw new ApiError(response.status, data.error || 'Request failed', data.details)
   }
 
   const data = await response.json()
@@ -102,5 +103,3 @@ export const api = {
 
   delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 }
-
-export { ApiError }
