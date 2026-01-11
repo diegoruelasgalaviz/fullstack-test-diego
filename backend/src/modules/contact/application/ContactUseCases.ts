@@ -3,13 +3,15 @@ import type {
   CreateContactDTO,
   UpdateContactDTO,
   ContactRepository,
+  ContactQueryOptions,
+  PaginationResult,
 } from '../domain'
 
 export class ContactUseCases {
   constructor(private readonly contactRepository: ContactRepository) {}
 
-  async getAllByOrganization(organizationId: string): Promise<Contact[]> {
-    return this.contactRepository.findAllByOrganization(organizationId)
+  async getAllByOrganization(organizationId: string, options?: ContactQueryOptions): Promise<PaginationResult<Contact> | Contact[]> {
+    return this.contactRepository.findAllByOrganization(organizationId, options)
   }
 
   async getContactById(id: string): Promise<Contact | null> {

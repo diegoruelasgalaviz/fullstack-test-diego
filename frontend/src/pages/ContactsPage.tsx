@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { contactService, type Contact } from '../services'
+import { contactService, type Contact, type PaginationResult, type ContactQueryOptions } from '../services'
 import { ApiError } from '../services/api'
 import { useToast } from '../context/ToastContext'
 
@@ -13,14 +13,42 @@ export function ContactsPage() {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const { addToast } = useToast()
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(10)
+  const [totalContacts, setTotalContacts] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+
   useEffect(() => {
     loadContacts()
   }, [])
 
-  async function loadContacts() {
+  async function loadContacts(page = currentPage) {
     try {
-      const data = await contactService.getAll()
-      setContacts(data)
+      const options: ContactQueryOptions = {
+        pagination: {
+          page,
+          limit: pageSize
+        }
+      }
+
+      const result = await contactService.getAll(options)
+
+      // Handle both paginated and non-paginated responses
+      if (result && typeof result === 'object' && 'data' in result) {
+        // Paginated response
+        const paginatedResult = result as PaginationResult<Contact>
+        setContacts(paginatedResult.data)
+        setTotalContacts(paginatedResult.total)
+        setTotalPages(paginatedResult.totalPages)
+        setCurrentPage(paginatedResult.page)
+      } else {
+        // Fallback to simple array (backward compatibility)
+        setContacts(result as Contact[])
+        setTotalContacts((result as Contact[]).length)
+        setTotalPages(1)
+        setCurrentPage(1)
+      }
     } catch (error) {
       console.error('Failed to load contacts:', error)
 
@@ -280,6 +308,63 @@ export function ContactsPage() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
+            <div className="flex items-center text-sm text-slate-700">
+              <span>
+                Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalContacts)} of {totalContacts} contacts
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  const newPage = currentPage - 1
+                  setCurrentPage(newPage)
+                  loadContacts(newPage)
+                }}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm border border-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              >
+                Previous
+              </button>
+
+              {/* Page numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = i + 1
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => {
+                      setCurrentPage(pageNum)
+                      loadContacts(pageNum)
+                    }}
+                    className={`px-3 py-1 text-sm border rounded-md ${
+                      currentPage === pageNum
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+
+              <button
+                onClick={() => {
+                  const newPage = currentPage + 1
+                  setCurrentPage(newPage)
+                  loadContacts(newPage)
+                }}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 text-sm border border-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

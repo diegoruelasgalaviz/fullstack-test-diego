@@ -12,13 +12,17 @@ export function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [contacts, deals, workflows] = await Promise.all([
+        const [contactsResult, dealsResult, workflows] = await Promise.all([
           contactService.getAll(),
           dealService.getAll(),
           workflowService.getAll(),
         ])
 
-        const totalValue = deals.reduce((sum, deal) => sum + deal.value, 0)
+        // Handle both paginated and non-paginated responses
+        const contacts = Array.isArray(contactsResult) ? contactsResult : contactsResult.data
+        const deals = Array.isArray(dealsResult) ? dealsResult : dealsResult.data
+
+        const totalValue = deals.reduce((sum: number, deal: any) => sum + deal.value, 0)
 
         setStats({
           contacts: contacts.length,

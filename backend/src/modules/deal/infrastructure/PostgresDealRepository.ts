@@ -1,16 +1,78 @@
-import type { Repository } from 'typeorm'
-import type { Deal, CreateDealDTO, UpdateDealDTO, DealRepository } from '../domain'
+import type { Repository, SelectQueryBuilder } from 'typeorm'
+import type { Deal, CreateDealDTO, UpdateDealDTO, DealRepository, DealQueryOptions, PaginationResult, FilterCondition, SortOption } from '../domain'
 import { DealEntity } from './DealEntity'
 
 export class PostgresDealRepository implements DealRepository {
   constructor(private readonly repository: Repository<DealEntity>) {}
 
-  async findAllByOrganization(organizationId: string): Promise<Deal[]> {
-    const entities = await this.repository.find({
-      where: { organizationId },
-      order: { createdAt: 'DESC' },
-    })
+  async findAllByOrganization(organizationId: string, options?: DealQueryOptions): Promise<PaginationResult<Deal> | Deal[]> {
+    const queryBuilder = this.repository.createQueryBuilder('deal')
+      .where('deal.organizationId = :organizationId', { organizationId })
+
+    // Apply filters
+    if (options?.filters?.conditions) {
+      options.filters.conditions.forEach((condition, index) => {
+        this.applyFilter(queryBuilder, condition, index)
+      })
+    }
+
+    // Apply sorting
+    if (options?.sorts?.sorts && options.sorts.sorts.length > 0) {
+      options.sorts.sorts.forEach((sort) => {
+        queryBuilder.addOrderBy(`deal.${sort.field}`, sort.order)
+      })
+    } else {
+      // Default sorting by createdAt DESC
+      queryBuilder.orderBy('deal.createdAt', 'DESC')
+    }
+
+    // If no pagination requested, return all results
+    if (!options?.pagination) {
+      const entities = await queryBuilder.getMany()
     return entities.map((e) => e.toDomain())
+    }
+
+    // Apply pagination
+    const { page, limit } = options.pagination
+    const offset = (page - 1) * limit
+
+    queryBuilder.skip(offset).take(limit)
+
+    // Get paginated results and total count
+    const [entities, total] = await queryBuilder.getManyAndCount()
+
+    const totalPages = Math.ceil(total / limit)
+
+    return {
+      data: entities.map((e) => e.toDomain()),
+      total,
+      page,
+      limit,
+      totalPages,
+    }
+  }
+
+  private applyFilter(queryBuilder: SelectQueryBuilder<DealEntity>, condition: FilterCondition, index: number): void {
+    const paramName = `param_${index}`
+    const fieldName = `deal.${condition.field}`
+
+    switch (condition.operator) {
+      case 'equals':
+        queryBuilder.andWhere(`${fieldName} = :${paramName}`, { [paramName]: condition.value })
+        break
+      case 'contains':
+        queryBuilder.andWhere(`${fieldName} ILIKE :${paramName}`, { [paramName]: `%${condition.value}%` })
+        break
+      case 'startsWith':
+        queryBuilder.andWhere(`${fieldName} ILIKE :${paramName}`, { [paramName]: `${condition.value}%` })
+        break
+      case 'greaterThan':
+        queryBuilder.andWhere(`${fieldName} > :${paramName}`, { [paramName]: condition.value })
+        break
+      case 'lessThan':
+        queryBuilder.andWhere(`${fieldName} < :${paramName}`, { [paramName]: condition.value })
+        break
+    }
   }
 
   async findById(id: string): Promise<Deal | null> {

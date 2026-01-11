@@ -1,14 +1,79 @@
 import type { Response } from 'express'
 import type { AuthenticatedRequest } from '@shared/http'
 import type { DealUseCases } from '../application'
+import type { DealQueryOptions, PaginationResult } from '../domain'
 
 export class DealController {
   constructor(private readonly dealUseCases: DealUseCases) {}
 
   async getAll(req: AuthenticatedRequest, res: Response): Promise<void> {
     const { organizationId } = req.user
-    const deals = await this.dealUseCases.getAllByOrganization(organizationId)
-    res.json(deals)
+    const queryOptions = this.parseQueryOptions(req)
+
+    const result = await this.dealUseCases.getAllByOrganization(organizationId, queryOptions)
+
+    // If result is paginated, return with metadata
+    if (this.isPaginationResult(result)) {
+      res.json(result)
+    } else {
+      // For backward compatibility, return simple array
+      res.json(result)
+    }
+  }
+
+  private parseQueryOptions(req: AuthenticatedRequest): DealQueryOptions | undefined {
+    const { page, limit, sort, filter } = req.query
+    const options: DealQueryOptions = {}
+
+    // Parse pagination
+    if (page && limit) {
+      options.pagination = {
+        page: parseInt(page as string, 10) || 1,
+        limit: parseInt(limit as string, 10) || 10,
+      }
+    }
+
+    // Parse sorting
+    if (sort) {
+      const sortParams = Array.isArray(sort) ? sort : [sort]
+      options.sorts = {
+        sorts: sortParams.map((s) => {
+          const [field, order] = (s as string).split(':')
+          return {
+            field: field as any,
+            order: (order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC') as any,
+          }
+        }),
+      }
+    }
+
+    // Parse filtering (simplified version - can be extended)
+    if (filter) {
+      const filterStr = filter as string
+      // Simple format: field:operator:value
+      const [field, operator, value] = filterStr.split(':')
+      if (field && operator && value) {
+        options.filters = {
+          conditions: [{
+            field: field as any,
+            operator: operator as any,
+            value: this.parseFilterValue(value),
+          }],
+        }
+      }
+    }
+
+    return Object.keys(options).length > 0 ? options : undefined
+  }
+
+  private parseFilterValue(value: string): any {
+    // Try to parse as number, otherwise keep as string
+    const numValue = parseFloat(value)
+    return isNaN(numValue) ? value : numValue
+  }
+
+  private isPaginationResult(result: any): result is PaginationResult<any> {
+    return result && typeof result === 'object' && 'data' in result && 'total' in result
   }
 
   async getById(req: AuthenticatedRequest, res: Response): Promise<void> {

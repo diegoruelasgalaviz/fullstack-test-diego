@@ -1,10 +1,10 @@
-import type { Deal, CreateDealDTO, UpdateDealDTO, DealRepository } from '../domain'
+import type { Deal, CreateDealDTO, UpdateDealDTO, DealRepository, DealQueryOptions, PaginationResult } from '../domain'
 
 export class DealUseCases {
   constructor(private readonly dealRepository: DealRepository) {}
 
-  async getAllByOrganization(organizationId: string): Promise<Deal[]> {
-    return this.dealRepository.findAllByOrganization(organizationId)
+  async getAllByOrganization(organizationId: string, options?: DealQueryOptions): Promise<PaginationResult<Deal> | Deal[]> {
+    return this.dealRepository.findAllByOrganization(organizationId, options)
   }
 
   async getDealById(id: string): Promise<Deal | null> {

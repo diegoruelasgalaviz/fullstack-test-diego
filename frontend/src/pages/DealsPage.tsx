@@ -1,5 +1,5 @@
 import { useEffect, useState, type DragEvent } from 'react'
-import { dealService, workflowService, contactService, type Deal, type Stage, type Contact } from '../services'
+import { dealService, workflowService, contactService, type Deal, type Stage, type Contact, type PaginationResult, type DealQueryOptions } from '../services'
 import { ApiError } from '../services/api'
 import { useToast } from '../context/ToastContext'
 
@@ -17,22 +17,52 @@ export function DealsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const { addToast } = useToast()
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize] = useState(10)
+  const [totalDeals, setTotalDeals] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [draggedDeal, setDraggedDeal] = useState<Deal | null>(null)
 
   useEffect(() => {
     loadData()
   }, [])
 
-  async function loadData() {
+  async function loadData(page = currentPage) {
     try {
-      const [dealsData, workflowsData, contactsData] = await Promise.all([
-        dealService.getAll(),
+      const dealsOptions: DealQueryOptions = {
+        pagination: {
+          page,
+          limit: pageSize
+        }
+      }
+
+      const [dealsResult, workflowsData, contactsData] = await Promise.all([
+        dealService.getAll(dealsOptions),
         workflowService.getAll(),
         contactService.getAll(),
       ])
-      setDeals(dealsData)
+
+      // Handle both paginated and non-paginated responses
+      if (dealsResult && typeof dealsResult === 'object' && 'data' in dealsResult) {
+        // Paginated response
+        const paginatedResult = dealsResult as PaginationResult<Deal>
+        setDeals(paginatedResult.data)
+        setTotalDeals(paginatedResult.total)
+        setTotalPages(paginatedResult.totalPages)
+        setCurrentPage(paginatedResult.page)
+      } else {
+        // Fallback to simple array (backward compatibility)
+        setDeals(dealsResult as Deal[])
+        setTotalDeals((dealsResult as Deal[]).length)
+        setTotalPages(1)
+        setCurrentPage(1)
+      }
+
       setStages(workflowsData[0]?.stages || [])
-      setContacts(contactsData)
+      // Handle both paginated and non-paginated contact responses
+      setContacts(Array.isArray(contactsData) ? contactsData : contactsData.data)
     } catch (error) {
       console.error('Failed to load data:', error)
 
@@ -503,6 +533,309 @@ export function DealsPage() {
               </tbody>
             </table>
           )}
+        </div>
+      )}
+
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+            {editingDeal ? 'Edit Deal' : 'New Deal'}
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value })
+                    if (validationErrors.title) {
+                      setValidationErrors({ ...validationErrors, title: '' })
+                    }
+                  }}
+                  required
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.title
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                />
+                {validationErrors.title && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.title}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Value ($)</label>
+                <input
+                  type="number"
+                  value={formData.value}
+                  onChange={(e) => {
+                    setFormData({ ...formData, value: e.target.value })
+                    if (validationErrors.value) {
+                      setValidationErrors({ ...validationErrors, value: '' })
+                    }
+                  }}
+                  required
+                  min="0"
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.value
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                />
+                {validationErrors.value && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.value}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contact</label>
+                <select
+                  value={formData.contactId}
+                  onChange={(e) => {
+                    setFormData({ ...formData, contactId: e.target.value })
+                    if (validationErrors.contactId) {
+                      setValidationErrors({ ...validationErrors, contactId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.contactId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                >
+                  <option value="">No contact</option>
+                  {contacts.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                {validationErrors.contactId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.contactId}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Stage</label>
+                <select
+                  value={formData.stageId}
+                  onChange={(e) => {
+                    setFormData({ ...formData, stageId: e.target.value })
+                    if (validationErrors.stageId) {
+                      setValidationErrors({ ...validationErrors, stageId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.stageId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                >
+                  <option value="">No stage</option>
+                  {stages.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+                {validationErrors.stageId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.stageId}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-500 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-slate-200">
+          <div className="flex items-center text-sm text-slate-700">
+            <span>
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalDeals)} of {totalDeals} deals
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                const newPage = currentPage - 1
+                setCurrentPage(newPage)
+                loadData(newPage)
+              }}
+              disabled={currentPage === 1}
+              className="px-3 py-1 text-sm border border-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+            >
+              Previous
+            </button>
+
+            {/* Page numbers */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const pageNum = i + 1
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => {
+                    setCurrentPage(pageNum)
+                    loadData(pageNum)
+                  }}
+                  className={`px-3 py-1 text-sm border rounded-md ${
+                    currentPage === pageNum
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+
+            <button
+              onClick={() => {
+                const newPage = currentPage + 1
+                setCurrentPage(newPage)
+                loadData(newPage)
+              }}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 text-sm border border-slate-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+            {editingDeal ? 'Edit Deal' : 'New Deal'}
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value })
+                    if (validationErrors.title) {
+                      setValidationErrors({ ...validationErrors, title: '' })
+                    }
+                  }}
+                  required
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.title
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                />
+                {validationErrors.title && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.title}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Value ($)</label>
+                <input
+                  type="number"
+                  value={formData.value}
+                  onChange={(e) => {
+                    setFormData({ ...formData, value: e.target.value })
+                    if (validationErrors.value) {
+                      setValidationErrors({ ...validationErrors, value: '' })
+                    }
+                  }}
+                  required
+                  min="0"
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.value
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                />
+                {validationErrors.value && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.value}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contact</label>
+                <select
+                  value={formData.contactId}
+                  onChange={(e) => {
+                    setFormData({ ...formData, contactId: e.target.value })
+                    if (validationErrors.contactId) {
+                      setValidationErrors({ ...validationErrors, contactId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.contactId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                >
+                  <option value="">No contact</option>
+                  {contacts.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                {validationErrors.contactId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.contactId}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Stage</label>
+                <select
+                  value={formData.stageId}
+                  onChange={(e) => {
+                    setFormData({ ...formData, stageId: e.target.value })
+                    if (validationErrors.stageId) {
+                      setValidationErrors({ ...validationErrors, stageId: '' })
+                    }
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
+                    validationErrors.stageId
+                      ? 'border-red-300 focus:ring-red-500'
+                      : 'border-slate-300 focus:ring-indigo-500'
+                  }`}
+                >
+                  <option value="">No stage</option>
+                  {stages.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+                {validationErrors.stageId && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.stageId}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-4 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-500 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>
