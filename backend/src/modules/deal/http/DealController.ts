@@ -108,7 +108,7 @@ export class DealController {
       stageId,
       title,
       value,
-    })
+    }, req.user.userId)
     res.status(201).json(deal)
   }
 
@@ -133,7 +133,7 @@ export class DealController {
       title,
       value,
       status,
-    })
+    }, req.user.userId)
 
     res.json(deal)
   }

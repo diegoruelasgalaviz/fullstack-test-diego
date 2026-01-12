@@ -1,3 +1,5 @@
 export * from './DealEntity'
+export * from './DealStageHistoryEntity'
 export * from './PostgresDealRepository'
+export * from './PostgresDealStageHistoryRepository'
 export * from './InMemoryDealRepository'

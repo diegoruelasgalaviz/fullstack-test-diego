@@ -4,7 +4,7 @@ import { UserEntity } from '@modules/users/infrastructure'
 import { OrganizationEntity } from '@modules/organization/infrastructure'
 import { ContactEntity } from '@modules/contact/infrastructure'
 import { WorkflowEntity, StageEntity } from '@modules/workflow/infrastructure'
-import { DealEntity } from '@modules/deal/infrastructure'
+import { DealEntity, DealStageHistoryEntity } from '@modules/deal/infrastructure'
 import { RefreshTokenEntity } from '@modules/auth/infrastructure'
 
 export const AppDataSource = new DataSource({
@@ -25,6 +25,7 @@ export const AppDataSource = new DataSource({
     WorkflowEntity,
     StageEntity,
     DealEntity,
+    DealStageHistoryEntity,
     RefreshTokenEntity,
   ],
   migrations: ['src/shared/infrastructure/database/migrations/*.ts'],

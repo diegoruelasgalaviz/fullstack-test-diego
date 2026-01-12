@@ -1,6 +1,6 @@
 export { api, ApiError } from './api'
 export { authService, type User, type AuthResponse, type LoginCredentials, type RegisterCredentials } from './auth.service'
 export { contactService, type Contact, type CreateContactDTO, type UpdateContactDTO, type PaginationResult, type ContactQueryOptions } from './contact.service'
-export { dealService, type Deal, type DealStatus, type CreateDealDTO, type UpdateDealDTO, type DealQueryOptions } from './deal.service'
+export { dealService, type Deal, type DealStatus, type CreateDealDTO, type UpdateDealDTO, type DealQueryOptions, type DealStageHistoryWithDetails, type DealAnalytics } from './deal.service'
 export { workflowService, type Workflow, type Stage, type CreateWorkflowDTO, type CreateStageDTO } from './workflow.service'
 export { organizationService, type Organization } from './organization.service'

@@ -1,4 +1,5 @@
 import { useEffect, useState, type DragEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { dealService, workflowService, contactService, type Deal, type Stage, type Contact, type PaginationResult, type DealQueryOptions } from '../services'
 import { ApiError } from '../services/api'
 import { useToast } from '../context/ToastContext'
@@ -17,6 +18,7 @@ export function DealsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('kanban')
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   const { addToast } = useToast()
+  const navigate = useNavigate()
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -491,7 +493,14 @@ export function DealsPage() {
               <tbody className="divide-y divide-slate-100">
                 {deals.map((deal) => (
                   <tr key={deal.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 text-slate-900 font-medium">{deal.title}</td>
+                    <td className="px-6 py-4 text-slate-900 font-medium">
+                      <button
+                        onClick={() => navigate(`/deals/${deal.id}`)}
+                        className="text-indigo-600 hover:text-indigo-800 hover:underline"
+                      >
+                        {deal.title}
+                      </button>
+                    </td>
                     <td className="px-6 py-4 text-slate-600">${deal.value.toLocaleString()}</td>
                     <td className="px-6 py-4 text-slate-600">{getContactName(deal.contactId) || '-'}</td>
                     <td className="px-6 py-4">
