@@ -48,6 +48,10 @@ import {
   PostgresDealRepository,
   DealController,
   createDealRoutes,
+  DealStageHistoryEntity,
+  PostgresDealStageHistoryRepository,
+  DealStageHistoryUseCases,
+  DealStageHistoryController,
 } from '@modules/deal'
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'your-secret-key-change-in-production'
@@ -116,8 +120,16 @@ export function createApp(dataSource: DataSource): Express {
   const dealRepository = new PostgresDealRepository(
     dataSource.getRepository(DealEntity)
   )
-  const dealUseCases = new DealUseCases(dealRepository)
+  const dealStageHistoryRepository = new PostgresDealStageHistoryRepository(
+    dataSource.getRepository(DealStageHistoryEntity)
+  )
+  const dealStageHistoryUseCases = new DealStageHistoryUseCases(
+    dealStageHistoryRepository,
+    dealRepository
+  )
+  const dealUseCases = new DealUseCases(dealRepository, dealStageHistoryUseCases)
   const dealController = new DealController(dealUseCases)
+  const dealStageHistoryController = new DealStageHistoryController(dealStageHistoryUseCases)
 
   // Routes (public)
   app.use('/api/auth', createAuthRoutes(authController, authMiddleware))
@@ -127,7 +139,7 @@ export function createApp(dataSource: DataSource): Express {
   app.use('/api/organizations', createOrganizationRoutes(organizationController, authMiddleware))
   app.use('/api/contacts', createContactRoutes(contactController, authMiddleware))
   app.use('/api/workflows', createWorkflowRoutes(workflowController, authMiddleware))
-  app.use('/api/deals', createDealRoutes(dealController, authMiddleware))
+  app.use('/api/deals', createDealRoutes(dealController, dealStageHistoryController, authMiddleware))
 
   // Health check
   app.get('/api/health', (_req, res) => {

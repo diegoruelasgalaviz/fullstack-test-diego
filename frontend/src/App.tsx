@@ -8,6 +8,7 @@ import {
   DashboardPage,
   ContactsPage,
   DealsPage,
+  DealDetailPage,
   WorkflowsPage,
   SettingsPage,
 } from './pages'
@@ -26,6 +27,7 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/contacts" element={<ContactsPage />} />
                 <Route path="/deals" element={<DealsPage />} />
+                <Route path="/deals/:dealId" element={<DealDetailPage />} />
                 <Route path="/workflows" element={<WorkflowsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>

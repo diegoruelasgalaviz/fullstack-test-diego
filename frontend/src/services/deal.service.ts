@@ -47,6 +47,41 @@ export interface DealQueryOptions {
   filter?: string
 }
 
+export interface DealStageHistory {
+  id: string
+  dealId: string
+  stageId: string | null
+  userId: string
+  changedAt: string
+  durationInStage: number | null
+  notes: string | null
+  createdAt: string
+}
+
+export interface DealStageHistoryWithDetails extends DealStageHistory {
+  stageName: string | null
+  stageColor: string | null
+  userName: string
+  userEmail: string
+}
+
+export interface DealAnalytics {
+  dealId: string
+  totalStages: number
+  totalDuration: number
+  currentStageDuration: number
+  stageHistory: DealStageHistoryWithDetails[]
+}
+
+export interface StageDurationAnalytics {
+  stageId: string
+  stageName: string
+  averageDuration: number
+  totalTransitions: number
+  minDuration: number
+  maxDuration: number
+}
+
 export const dealService = {
   getAll: (options?: DealQueryOptions) => {
     const params = new URLSearchParams()
@@ -78,4 +113,30 @@ export const dealService = {
     api.put<Deal>(`/deals/${id}`, data),
 
   delete: (id: string) => api.delete(`/deals/${id}`),
+
+  getDealHistory: (dealId: string) =>
+    api.get<{ dealId: string; history: DealStageHistoryWithDetails[]; totalEntries: number }>(`/deals/${dealId}/history`),
+
+  getDealAnalytics: (dealId: string) =>
+    api.get<DealAnalytics>(`/deals/${dealId}/analytics`),
+
+  getStageAnalytics: () =>
+    api.get<{ organizationId: string; stageAnalytics: StageDurationAnalytics[]; totalStages: number }>('/analytics/stage-durations'),
+
+  getOrganizationHistory: (limit?: number, offset?: number) => {
+    const params = new URLSearchParams()
+    if (limit) params.append('limit', limit.toString())
+    if (offset) params.append('offset', offset.toString())
+
+    const queryString = params.toString()
+    const endpoint = queryString ? `/analytics/organization-history?${queryString}` : '/analytics/organization-history'
+
+    return api.get<{
+      organizationId: string
+      history: DealStageHistoryWithDetails[]
+      total: number
+      limit: number
+      offset: number
+    }>(endpoint)
+  },
 }
